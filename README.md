@@ -4,11 +4,17 @@ Canonical documentation for ProAICommunity LiteLLM production router.
 
 **Entry point:** [docs/INDEX.md](docs/INDEX.md)
 
+---
+
+**WARNING:** Legacy docs on VPS (`/docker/litellm-xne6/docs/`) are largely outdated. Do NOT use them as source of truth unless explicitly re-verified against `config.yaml` and `billing.public_model_tariff`. Always prefer `docs/current/*` in this repo.
+
+---
+
 ## What This Repo Contains
 
-- `docs/current/` — canonical docs synced with live production (config.yaml + billing DB)
+- `docs/current/` — canonical docs synced with live production
 - `docs/audits/` — factual production state audits
-- `docs/historical/` — legacy docs marked as historical
+- `docs/historical/` — legacy migration plan
 
 ## Live Sources of Truth (override all docs)
 
