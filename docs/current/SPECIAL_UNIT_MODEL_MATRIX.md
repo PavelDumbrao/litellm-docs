@@ -5,8 +5,8 @@ Date: 2026-03-26.
 ## Audio (P1)
 gpt-4o-audio-preview(audio_token, proxy, desired:audio tokens), gpt-audio(audio_token, proxy, desired:audio tokens), gpt-audio-mini(chars_token, proxy, desired:chars), gpt-4o-transcribe(audio_token, proxy, desired:audio minutes), gpt-4o-mini-transcribe(audio_token, proxy, desired:audio minutes)
 
-## TTS (P1) ✅ IMPLEMENTED
-tts-1(chars_token, ✅ worker branch active, validation BLOCKED — no real logs), tts-hd-1(chars_token, ✅ branch active, pending validation), gpt-4o-mini-tts(chars_token, ✅ branch active, pending validation)
+## TTS (P1) ✅ IMPLEMENTED — VALIDATED — INERT
+tts-1(chars_token, ✅ worker branch active, ⚠️ chars NOT in metadata — falls back to token proxy), tts-hd-1(chars_token, ✅ branch active, same blocker), gpt-4o-mini-tts(chars_token, ✅ branch active, same blocker)
 
 ## Search (P2)
 gpt-4o-search-preview(search_token, proxy, desired:per query), gpt-4o-mini-search-preview(search_token, proxy, desired:per query), gpt-5-search-api(search_token, proxy, desired:per query)
@@ -26,4 +26,5 @@ o4-mini-deep-research(research_token, proxy, desired:per query)
 - Search: P2
 - Realtime: P2
 - Research: P2
-- **Blocker:** No real user TTS logs to validate character count metadata
+- **Blocker CONFIRMED:** LiteLLM does NOT expose character counts in spend log metadata. Chars-token billing is INERT — always falls back to token proxy.
+- **Next:** Either patch LiteLLM upstream, or use input text length as char proxy in worker.

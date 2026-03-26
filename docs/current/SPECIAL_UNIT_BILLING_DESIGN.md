@@ -24,10 +24,13 @@ Do not bill both tokens AND unit metric. If unit metric available, use exclusive
 - `_calc_credits_chars()` — computes credits for chars_token billing
 - `process_spend_log()` — branches on `billing_unit != "token"`, uses char metric if available, falls back to token proxy
 
-### ⚠️ Validation BLOCKED
-- Only health check TTS logs exist (no real user requests)
-- Cannot confirm character counts appear in production metadata yet
-- Next step: real TTS API call → check metadata → verify billing
+### ⚠️ Validation RESULT: INERT
+- Real TTS request made via LiteLLM proxy (HTTP 200, tts-1, 82 chars input)
+- LiteLLM metadata contains: usage_object (tokens=0), cost_breakdown (USD), additional_usage_values (EMPTY)
+- **NO character counts in spend log metadata** — chars_token billing CANNOT activate
+- Worker falls back to token proxy (minimum charge applies)
+- Root cause: LiteLLM does not expose OpenAI TTS character counts in metadata
+- Next step: either patch LiteLLM upstream, or use input text length as char proxy in worker
 
 ### Affected models
 - tts-1 (chars_token) — branch active
@@ -37,7 +40,7 @@ Do not bill both tokens AND unit metric. If unit metric available, use exclusive
 
 ## Verification
 1. ✅ Add billing_unit branch in worker
-2. ⚠️ Test 1 proxy model — BLOCKED (no real TTS logs)
-3. ⏳ Compare vs expected rate — pending real data
-4. ⏳ Expand if accurate
-5. ⏳ Document if not possible
+2. ⚠️ Test 1 proxy model — chars_token billing INERT (no chars in metadata)
+3. ✅ Fallback works — token proxy minimum applies correctly
+4. ✅ Safety confirmed — no double-charge, token models unaffected
+5. ✅ Blocker documented — LiteLLM does not expose character counts
