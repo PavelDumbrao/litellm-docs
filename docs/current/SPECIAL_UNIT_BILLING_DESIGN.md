@@ -33,7 +33,7 @@ Do not bill both tokens AND unit metric. If unit metric available, use exclusive
 - Next step: either patch LiteLLM upstream, or use input text length as char proxy in worker
 
 ### Affected models
-- tts-1 (chars_token) — branch active
+- tts-1 (chars_token) — ❌ REMOVED from public surface (inert billing, legacy model)
 - tts-hd-1 (chars_token) — branch active
 - gpt-4o-mini-tts (chars_token) — branch active
 - All other models — unchanged (standard token path)

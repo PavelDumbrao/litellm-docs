@@ -37,7 +37,6 @@ gpt-audio: $1.03/$2.05 per 1M (audio_token proxy)
 gpt-4o-realtime-preview: $2.05/$8.22 per 1M (realtime_token proxy)
 o4-mini-deep-research: $0.82/$3.29 per 1M (research_token proxy)
 gpt-4o-mini-tts: $4.93/$19.73 per 1M (chars_token proxy)
-tts-1: $6.16/$6.16 per 1M (chars_token proxy)
 tts-hd-1: $30.82/$30.82 per 1M (chars_token proxy)
 gpt-audio-mini: $30.82/$61.64 per 1M (chars_token proxy)
 

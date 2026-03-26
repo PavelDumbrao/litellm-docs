@@ -17,7 +17,7 @@ gemini-3-flash-preview, gemini-3-flash-preview-nothinking, gemini-3-flash-previe
 deepseek-v3.2
 
 ## Audio/Speech (special billing unit — PROXY via token)
-gpt-4o-audio-preview, gpt-audio, gpt-audio-mini, gpt-4o-mini-tts, tts-1, tts-hd-1
+gpt-4o-audio-preview, gpt-audio, gpt-audio-mini, gpt-4o-mini-tts, tts-hd-1
 
 ## Realtime (special billing unit — PROXY via token)
 gpt-4o-realtime-preview, gpt-4o-mini-realtime-preview

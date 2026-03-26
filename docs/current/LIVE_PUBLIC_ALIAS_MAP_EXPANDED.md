@@ -37,7 +37,7 @@ deepseek-v3.2 -> jeniya-skidka(order:1), jeniya-az15(order:2). Fallback: gpt-4o-
 gpt-4o-audio-preview(audio_token), gpt-4o-realtime-preview(realtime_token), gpt-4o-mini-realtime-preview(realtime_token)
 gpt-4o-search-preview(search_token), gpt-4o-mini-search-preview(search_token), gpt-5-search-api(search_token)
 o4-mini-deep-research(research_token), gpt-4o-transcribe(audio_token), gpt-4o-mini-transcribe(audio_token)
-gpt-4o-mini-tts(chars_token), gpt-audio(audio_token), gpt-audio-mini(chars_token), tts-1(chars_token), tts-hd-1(chars_token)
+gpt-4o-mini-tts(chars_token), gpt-audio(audio_token), gpt-audio-mini(chars_token), tts-hd-1(chars_token)
 
 ## Embeddings (passthrough)
 text-embedding-3-large, text-embedding-3-small, text-embedding-ada-002
