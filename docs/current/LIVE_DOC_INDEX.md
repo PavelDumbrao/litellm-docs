@@ -8,7 +8,8 @@ Canonical doc set synced with live production. Legacy docs are largely outdated.
 ## Read In This Order
 1. CURRENT_SOURCE_OF_TRUTH.md — what to trust, what to ignore
 2. LIVE_PUBLIC_MODEL_CATALOG.md — all customer-facing models
-3. LIVE_PUBLIC_ALIAS_MAP.md — public alias -> internal route mapping
+3. LIVE_PUBLIC_ALIAS_MAP.md — public alias -> internal route mapping (summary)
+3b. LIVE_PUBLIC_ALIAS_MAP_EXPANDED.md — detailed mapping with providers, fallbacks, pricing
 4. LIVE_PRICING_REFERENCE.md — retail prices ($/1M)
 5. LIVE_ROUTING_AND_FALLBACK_REFERENCE.md — routing, providers, fallbacks
 
