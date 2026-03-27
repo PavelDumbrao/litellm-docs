@@ -17,6 +17,8 @@ Canonical doc set synced with live production. Legacy docs are largely outdated.
 8. PUBLIC_SURFACE_GUARD.md — repeatable drift-check layer: 8 checks, baseline 41/30/11, PASS/FAIL, deploy instructions
 9. USAGE_TRANSPARENCY_SOURCE_MAP.md — maps all usage/debit data sources (spend log, ledger, tariff, /usage) per audience
 10. USAGE_DISPLAY_POLICY.md — customer-facing display rules: Standard vs Estimated labels, caveat policy, wording principles
+11. OPERATOR_TROUBLESHOOTING_SOURCE_MAP.md — operator-only source-of-truth chain for debit inspection
+12. OPERATOR_UI_IMPLEMENTATION_2026-03-27.md — internal operator UI flow on top of usage rows and operator endpoint
 
 ## Source of Truth Hierarchy
 1. config.yaml (live) — routing, models, fallbacks, providers
