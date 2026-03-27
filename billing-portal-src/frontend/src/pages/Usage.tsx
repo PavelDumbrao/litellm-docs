@@ -1,6 +1,22 @@
 import { useEffect, useState } from "react"
 import { usageApi } from "../lib/api"
 
+interface UsageSummary {
+    total_requests: number
+    total_debit: number
+    standard_debit: number
+    estimated_debit: number
+    has_estimated: boolean
+    estimated_caveat: string | null
+    models: Array<{
+        model: string
+        requests: number
+        debit: number
+        billing_type_label: string
+        proxy_billed: boolean
+    }>
+}
+
 interface UsageLog {
     id: string
     created_at: string
@@ -39,7 +55,7 @@ function BillingTypeLabel({ label, proxyBilled }: { label: string; proxyBilled: 
 }
 
 export default function Usage() {
-    const [summary, setSummary] = useState<any>(null)
+    const [summary, setSummary] = useState<UsageSummary | null>(null)
     const [logsData, setLogsData] = useState<LogsResponse>({ logs: [], total: 0, page: 1, per_page: 50, pages: 1 })
     const [loading, setLoading] = useState(false)
     const [page, setPage] = useState(1)
@@ -47,8 +63,15 @@ export default function Usage() {
     const [dateTo, setDateTo] = useState("")
     const [modelFilter, setModelFilter] = useState("")
 
+    const loadSummary = (df?: string, dt?: string) => {
+        const params = new URLSearchParams()
+        if (df) params.set("date_from", df)
+        if (dt) params.set("date_to", dt)
+        usageApi.summary().then(r => setSummary(r.data)).catch(() => setSummary(null))
+    }
+
     useEffect(() => {
-        usageApi.summary().then(r => setSummary(r.data)).catch(() => { })
+        loadSummary(dateFrom || undefined, dateTo || undefined)
     }, [])
 
     useEffect(() => {
@@ -64,19 +87,45 @@ export default function Usage() {
         }).finally(() => setLoading(false))
     }, [page, dateFrom, dateTo, modelFilter])
 
-    const handleFilterChange = () => setPage(1)
+    const handleFilterChange = () => {
+        setPage(1)
+        loadSummary(dateFrom || undefined, dateTo || undefined)
+    }
 
     return (
         <div>
             <h2 className="text-2xl font-bold text-white mb-6">Использование</h2>
 
             {/* Summary cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                <div className="card"><p className="text-gray-400 text-sm">Запросов</p><p className="text-2xl font-bold text-white">{summary?.total_requests ?? "—"}</p></div>
-                <div className="card"><p className="text-gray-400 text-sm">Успешных</p><p className="text-2xl font-bold text-green-400">{summary?.success_requests ?? "—"}</p></div>
-                <div className="card"><p className="text-gray-400 text-sm">Ошибок</p><p className="text-2xl font-bold text-red-400">{summary?.error_requests ?? "—"}</p></div>
-                <div className="card"><p className="text-gray-400 text-sm">Списано кредитов</p><p className="text-2xl font-bold text-white">{summary?.total_charged_credits ?? logsData.logs.reduce((s, l) => s + l.charged_credits, 0).toFixed(4)}</p></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div className="card">
+                    <p className="text-gray-400 text-sm">Запросов</p>
+                    <p className="text-2xl font-bold text-white">{summary?.total_requests ?? "—"}</p>
+                </div>
+                <div className="card">
+                    <p className="text-gray-400 text-sm">Списано всего</p>
+                    <p className="text-2xl font-bold text-white">{summary ? summary.total_debit.toFixed(4) : "—"}</p>
+                </div>
+                <div className="card">
+                    <p className="text-gray-400 text-sm">Standard</p>
+                    <p className="text-2xl font-bold text-white">{summary ? summary.standard_debit.toFixed(4) : "—"}</p>
+                    <p className="text-gray-600 text-xs mt-0.5">Точный биллинг</p>
+                </div>
+                <div className="card">
+                    <p className="text-gray-400 text-sm">Estimated</p>
+                    <p className={`text-2xl font-bold ${summary && summary.estimated_debit > 0 ? "text-amber-400" : "text-gray-500"}`}>
+                        {summary ? summary.estimated_debit.toFixed(4) : "—"}
+                    </p>
+                    <p className="text-gray-600 text-xs mt-0.5">~Приближённый</p>
+                </div>
             </div>
+
+            {/* Estimated caveat at summary level */}
+            {summary?.has_estimated && summary.estimated_caveat && (
+                <div className="mb-4 px-4 py-2 rounded border border-amber-800/40 bg-amber-900/10">
+                    <p className="text-amber-500/80 text-xs italic">{summary.estimated_caveat}</p>
+                </div>
+            )}
 
             {/* Filters */}
             <div className="card mb-4">
@@ -95,7 +144,7 @@ export default function Usage() {
                         <input className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-white w-48" placeholder="gpt-4o-mini..." value={modelFilter} onChange={e => { setModelFilter(e.target.value); handleFilterChange() }} />
                     </div>
                     <div className="flex items-end">
-                        <button className="px-3 py-1 text-sm text-gray-400 hover:text-white border border-gray-700 rounded" onClick={() => { setDateFrom(""); setDateTo(""); setModelFilter(""); setPage(1) }}>Сбросить</button>
+                        <button className="px-3 py-1 text-sm text-gray-400 hover:text-white border border-gray-700 rounded" onClick={() => { setDateFrom(""); setDateTo(""); setModelFilter(""); setPage(1); loadSummary() }}>Сбросить</button>
                     </div>
                 </div>
             </div>
