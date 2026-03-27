@@ -14,6 +14,7 @@ Canonical doc set synced with live production. Legacy docs are largely outdated.
 5. LIVE_ROUTING_AND_FALLBACK_REFERENCE.md — routing, providers, fallbacks
 6. SPECIAL_UNIT_MODEL_MATRIX.md — billing categories for all special-unit models (audio, search, realtime, research)
 7. SPECIAL_UNIT_OPERATING_POLICY.md — operating policy for all 11 proxy-billed public models (ACCEPTED_PROXY / REVIEW_LATER, removed TTS)
+8. PUBLIC_SURFACE_GUARD.md — repeatable drift-check layer: 8 checks, baseline 41/30/11, PASS/FAIL, deploy instructions
 
 ## Source of Truth Hierarchy
 1. config.yaml (live) — routing, models, fallbacks, providers
