@@ -11,34 +11,18 @@ on:
 jobs:
   guard:
     name: Run PublicSurfaceGuard v1.0
-    runs-on: ubuntu-latest
+    # Self-hosted runner на VPS — прямой доступ к Docker и billing-portal
+    runs-on: [self-hosted, vps]
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
-        env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      - name: Run guard inside billing-portal container
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key
-          chmod 600 ~/.ssh/vps_key
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
-
-      - name: Copy guard script to VPS
-        run: |
-          scp -i ~/.ssh/vps_key -o StrictHostKeyChecking=no \
-            scripts/surface_guard.py \
-            root@${{ secrets.VPS_HOST }}:/tmp/surface_guard.py
-
-      - name: Run guard on VPS and capture JSON output
-        run: |
+          docker cp scripts/surface_guard.py billing-portal:/opt/surface_guard.py
           mkdir -p artifacts
-          ssh -i ~/.ssh/vps_key -o StrictHostKeyChecking=no root@${{ secrets.VPS_HOST }} \
-            "docker cp /tmp/surface_guard.py billing-portal:/opt/surface_guard.py && \
-             docker exec billing-portal python3 /opt/surface_guard.py" \
-            > artifacts/guard_result.json 2>&1
+          docker exec billing-portal python3 /opt/surface_guard.py > artifacts/guard_result.json 2>&1
           echo "--- Guard output ---"
           cat artifacts/guard_result.json
 
