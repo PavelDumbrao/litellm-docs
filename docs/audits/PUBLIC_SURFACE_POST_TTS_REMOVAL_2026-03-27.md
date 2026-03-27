@@ -15,7 +15,7 @@ claude-haiku-4-5, claude-haiku-4-5-thinking, claude-opus-4-5-thinking, claude-op
 ### Proxy-billed special-unit (11 models — approximate billing)
 gpt-4o-audio-preview (audio_token), gpt-audio (audio_token), gpt-audio-mini (chars_token ⚠️), gpt-4o-transcribe (audio_token), gpt-4o-mini-transcribe (audio_token), gpt-4o-search-preview (search_token), gpt-4o-mini-search-preview (search_token), gpt-5-search-api (search_token), gpt-4o-realtime-preview (realtime_token), gpt-4o-mini-realtime-preview (realtime_token), o4-mini-deep-research (research_token)
 
-⚠️ gpt-audio-mini uses chars_token — same billing_unit as removed TTS models. Currently proxy-billed via token. Needs review (see SPECIAL_MODEL_KEEP_REMOVE_AUDIT).
+gpt-audio-mini reclassified to audio_token 2026-03-27 (chars_token was incorrect label — LiteLLM bills per token). No ambiguity remaining.
 
 ## Counts
 
@@ -24,7 +24,7 @@ gpt-4o-audio-preview (audio_token), gpt-audio (audio_token), gpt-audio-mini (cha
 | Active public models total | 41 |
 | Token-billed (clean) | 30 |
 | Proxy-billed special-unit | 11 |
-| Proxy-billed chars_token (ambiguous) | 1 (gpt-audio-mini) |
+| Proxy-billed chars_token (ambiguous) | 0 — resolved, gpt-audio-mini reclassified to audio_token |
 | Removed TTS models | 3 |
 
 ## Removed (TTS — chars_token billing inert)
@@ -42,5 +42,5 @@ All 3 set is_active=false in billing.public_model_tariff on 2026-03-27.
 - Public surface is now text-first: plain token billing covers 30/41 active models
 - Special-unit proxy billing covers 11 models without billing ambiguity (token proxy is approximate but not inert)
 - TTS removed as billing path is completely inert — chars_token never reaches worker calculation
-- gpt-audio-mini has same billing_unit concern — flagged for review
+- gpt-audio-mini reclassified to audio_token 2026-03-27 — no chars_token ambiguity remains in public surface
 - TTS re-enable requires: tts_billing_events table + worker integration

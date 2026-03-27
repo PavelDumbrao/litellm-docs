@@ -3,7 +3,7 @@
 Date: 2026-03-26.
 
 ## Audio (P1)
-gpt-4o-audio-preview(audio_token, proxy, desired:audio tokens), gpt-audio(audio_token, proxy, desired:audio tokens), gpt-audio-mini(chars_token, proxy, desired:chars), gpt-4o-transcribe(audio_token, proxy, desired:audio minutes), gpt-4o-mini-transcribe(audio_token, proxy, desired:audio minutes)
+gpt-4o-audio-preview(audio_token, proxy, desired:audio tokens), gpt-audio(audio_token, proxy, desired:audio tokens), gpt-audio-mini(audio_token, proxy, reclassified 2026-03-27 from chars_token — LiteLLM bills per token), gpt-4o-transcribe(audio_token, proxy, desired:audio minutes), gpt-4o-mini-transcribe(audio_token, proxy, desired:audio minutes)
 
 ## TTS (ALL REMOVED FROM PUBLIC SURFACE 2026-03-27)
 tts-1(chars_token, ❌ REMOVED — legacy, inert billing), tts-hd-1(chars_token, ❌ REMOVED — chars NOT in metadata, blocker confirmed), gpt-4o-mini-tts(chars_token, ❌ REMOVED — chars NOT in metadata, blocker confirmed)

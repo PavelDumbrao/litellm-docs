@@ -19,9 +19,9 @@ Date: 2026-03-27. Scope: all non-plain-token models currently is_active=true in 
 
 | model | billing_unit | current behavior | metering confidence | op risk | decision |
 |---|---|---|---|---|---|
-| gpt-audio-mini | chars_token | proxy via token | NONE (same blocker as TTS) | HIGH | **AMBIGUOUS — REVIEW** |
+| gpt-audio-mini | audio_token | proxy via token | LOW (proxy approx) | LOW | **KEEP AS PROXY** (reclassified 2026-03-27) |
 
-**Note:** gpt-audio-mini uses billing_unit=chars_token, is_active=true. Same blocker as TTS (LiteLLM does not expose chars in spend log). Currently proxy-billed via token which approximates. Risk: customer-facing pricing implies chars billing but actual billing is token proxy. RECOMMEND: deactivate or reclassify as audio_token proxy to remove ambiguity.
+**Note:** Originally labelled chars_token — incorrect. config.yaml uses input_cost_per_token confirming token billing. Reclassified to audio_token. No chars blocker applies. Billing behavior unchanged.
 
 ### SEARCH (search_token)
 
@@ -65,13 +65,13 @@ Confirmed removed: is_active=false in billing.public_model_tariff.
 | Decision | Count | Models |
 |---|---|---|
 | KEEP | 0 | — |
-| KEEP AS PROXY | 10 | gpt-4o-audio-preview, gpt-audio, gpt-4o-transcribe, gpt-4o-mini-transcribe, gpt-4o-search-preview, gpt-4o-mini-search-preview, gpt-5-search-api, gpt-4o-realtime-preview, gpt-4o-mini-realtime-preview, o4-mini-deep-research |
-| AMBIGUOUS | 1 | gpt-audio-mini (chars_token but token proxy active) |
+| KEEP AS PROXY | 11 | gpt-4o-audio-preview, gpt-audio, gpt-audio-mini (reclassified), gpt-4o-transcribe, gpt-4o-mini-transcribe, gpt-4o-search-preview, gpt-4o-mini-search-preview, gpt-5-search-api, gpt-4o-realtime-preview, gpt-4o-mini-realtime-preview, o4-mini-deep-research |
+| AMBIGUOUS | 0 | — resolved: gpt-audio-mini reclassified to audio_token |
 | REMOVE | 3 | tts-1, gpt-4o-mini-tts, tts-hd-1 (done) |
 
 ## NEXT ACTIONS
 
-1. **gpt-audio-mini** — review billing_unit. If chars_token billing is also inert, consider same removal or reclassify to audio_token proxy. Requires confirmation.
+1. ~~**gpt-audio-mini**~~ — resolved 2026-03-27: reclassified to audio_token proxy.
 2. **Realtime** — monitor spend vs cost. If significant delta, prioritize proper realtime billing.
 3. **Research** — same as realtime. Low volume for now.
 4. **TTS re-enable path** — separate tts_billing_events table + worker integration before re-enabling any TTS model.
