@@ -1,0 +1,75 @@
+name: Public Surface Guard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Ежедневно в 06:00 UTC
+    - cron: '0 6 * * *'
+
+jobs:
+  guard:
+    name: Run PublicSurfaceGuard v1.0
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Copy guard script to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: scripts/surface_guard.py
+          target: /tmp/
+
+      - name: Run guard on VPS via SSH
+        id: guard_run
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            docker cp /tmp/scripts/surface_guard.py billing-portal:/opt/surface_guard.py
+            docker exec billing-portal python3 /opt/surface_guard.py > /tmp/guard_result.json 2>&1
+            cat /tmp/guard_result.json
+
+      - name: Download JSON result from VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: cat /tmp/guard_result.json
+
+      - name: Retrieve JSON artifact via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: /tmp/guard_result.json
+          target: ./artifacts/
+          strip_components: 2
+
+      - name: Upload JSON as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: surface-guard-result
+          path: artifacts/guard_result.json
+          retention-days: 30
+
+      - name: Check verdict — fail if FAIL
+        run: |
+          VERDICT=$(cat artifacts/guard_result.json | python3 -c "import sys,json; print(json.load(sys.stdin)['verdict'])")
+          echo "Verdict: $VERDICT"
+          if [ "$VERDICT" != "PASS" ]; then
+            echo "::error::PublicSurfaceGuard FAILED — public surface drift detected!"
+            cat artifacts/guard_result.json
+            exit 1
+          fi
+          echo "PublicSurfaceGuard PASSED — surface is clean."

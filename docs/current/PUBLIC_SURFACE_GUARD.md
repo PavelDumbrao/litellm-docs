@@ -127,3 +127,28 @@ Never re-baseline to silence a failure without investigating root cause.
 
 Script requires `asyncpg` (available in billing-portal container).
 DB: `postgresql://n8n:***@n8n-postgres:5432/railway`, schema `billing`, table `public_model_tariff`.
+
+## Automation (GitHub Actions)
+
+Workflow: `.github/workflows/public-surface-guard.yml`
+
+Triggers: push to main, workflow_dispatch, daily 06:00 UTC.
+
+Execution model: GitHub-hosted runner connects to VPS via SSH, runs guard inside `billing-portal` container, retrieves JSON result as artifact (30-day retention).
+
+### Required GitHub Secrets
+
+| Secret | Value |
+|---|---|
+| `VPS_HOST` | `31.97.199.12` |
+| `VPS_SSH_KEY` | Private SSH key for root@VPS |
+
+Set at: GitHub → Repo → Settings → Secrets → Actions.
+
+### PASS
+Workflow green. Artifact `surface-guard-result` available in Actions → Run → Artifacts.
+
+### FAIL
+Workflow red. Check step "Check verdict" log for full JSON failures list. Download artifact for details. Fix the drift, then re-run via workflow_dispatch. Only re-baseline if the change was intentional and documented.
+
+See full automation report: `docs/audits/PUBLIC_SURFACE_GUARD_AUTOMATION_2026-03-27.md`
