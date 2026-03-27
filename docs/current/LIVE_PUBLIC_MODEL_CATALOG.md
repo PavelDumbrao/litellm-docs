@@ -17,7 +17,7 @@ gemini-3-flash-preview, gemini-3-flash-preview-nothinking, gemini-3-flash-previe
 deepseek-v3.2
 
 ## Audio/Speech (special billing unit — PROXY via token)
-gpt-4o-audio-preview, gpt-audio, gpt-audio-mini, gpt-4o-mini-tts, tts-hd-1
+gpt-4o-audio-preview, gpt-audio, gpt-audio-mini
 
 ## Realtime (special billing unit — PROXY via token)
 gpt-4o-realtime-preview, gpt-4o-mini-realtime-preview
@@ -37,5 +37,9 @@ i7dc-claude-haiku-4-5, i7dc-claude-sonnet-4-6, i7dc-claude-opus-4-6
 ## EXCLUDED (hidden internal aliases — NOT customer-facing)
 gpt-5.4-tools, gpt-5.4-mini-tools, gpt-5.4-nano-tools, gpt-4o-tools, gpt-4o-mini-tools, gpt-4.1-mini-tools, gpt-4.1-nano-tools, claude-haiku-4-5-tools, claude-sonnet-4-6-tools, claude-opus-4-6-tools, gemini-2.5-flash-tools, gemini-3-flash-tools, gemini-3.1-pro-preview-tools
 
+## REMOVED FROM PUBLIC SURFACE (2026-03-27)
+tts-1, gpt-4o-mini-tts, tts-hd-1 — billing_unit=chars_token but LiteLLM does not expose character counts in spend log. chars_token billing path inert. Removed pending reliable unit-aware metering.
+
 ## PROXY-BILLED NOTE
-Audio/search/realtime/transcribe/TTS models use billing_unit labels but worker currently has NO special-unit logic. Billed via token proxy approximation. Functional but not fully accurate per actual unit.
+Audio/search/realtime/transcribe models use billing_unit labels but worker currently has NO special-unit logic. Billed via token proxy approximation. Functional but not fully accurate per actual unit.
+TTS models (tts-1, gpt-4o-mini-tts, tts-hd-1) REMOVED from public surface 2026-03-27 — see REMOVED section above.

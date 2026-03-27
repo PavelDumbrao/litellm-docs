@@ -5,8 +5,8 @@ Date: 2026-03-26.
 ## Audio (P1)
 gpt-4o-audio-preview(audio_token, proxy, desired:audio tokens), gpt-audio(audio_token, proxy, desired:audio tokens), gpt-audio-mini(chars_token, proxy, desired:chars), gpt-4o-transcribe(audio_token, proxy, desired:audio minutes), gpt-4o-mini-transcribe(audio_token, proxy, desired:audio minutes)
 
-## TTS (P1)
-tts-1(chars_token, ❌ REMOVED from public surface — inert chars billing, legacy model), tts-hd-1(chars_token, ✅ branch active, ⚠️ chars NOT in metadata), gpt-4o-mini-tts(chars_token, ✅ branch active, ⚠️ chars NOT in metadata)
+## TTS (ALL REMOVED FROM PUBLIC SURFACE 2026-03-27)
+tts-1(chars_token, ❌ REMOVED — legacy, inert billing), tts-hd-1(chars_token, ❌ REMOVED — chars NOT in metadata, blocker confirmed), gpt-4o-mini-tts(chars_token, ❌ REMOVED — chars NOT in metadata, blocker confirmed)
 
 ## Search (P2)
 gpt-4o-search-preview(search_token, proxy, desired:per query), gpt-4o-mini-search-preview(search_token, proxy, desired:per query), gpt-5-search-api(search_token, proxy, desired:per query)
@@ -18,13 +18,13 @@ gpt-4o-realtime-preview(realtime_token, proxy, desired:realtime tokens), gpt-4o-
 o4-mini-deep-research(research_token, proxy, desired:per query)
 
 ## Summary
-14 models, all proxy via token. P1: audio/TTS (8, metadata available). P2: search/realtime/research (6, no reliable unit data).
+11 models remaining in public surface (TTS fully removed). Audio (5, proxy), Search/Realtime/Research (6, proxy).
 
-## Implementation Status (2026-03-26)
-- TTS: 2/2 public models have chars_token branch (tts-hd-1, gpt-4o-mini-tts). tts-1 removed from public surface.
-- Audio: 0/5 models implemented (pending TTS validation first)
-- Search: P2
-- Realtime: P2
-- Research: P2
-- **Blocker CONFIRMED:** LiteLLM does NOT expose character counts in spend log metadata. Chars-token billing is INERT — always falls back to token proxy.
-- **Next:** Either patch LiteLLM upstream, or use input text length as char proxy in worker.
+## Implementation Status (2026-03-27)
+- TTS: ALL 3 REMOVED from public surface (tts-1, tts-hd-1, gpt-4o-mini-tts). is_active=false in DB.
+- Audio: 5 models active, proxy-billed, no special-unit logic (gpt-4o-audio-preview, gpt-audio, gpt-audio-mini, gpt-4o-transcribe, gpt-4o-mini-transcribe)
+- Search: 3 models active, proxy-billed
+- Realtime: 2 models active, proxy-billed
+- Research: 1 model active, proxy-billed
+- **Blocker for TTS confirmed and actioned:** Removed from public surface pending reliable metering path.
+- **Next for TTS:** Separate tts_billing_events table + worker integration before re-enabling.

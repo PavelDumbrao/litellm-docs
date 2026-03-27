@@ -36,9 +36,11 @@ gpt-4o-transcribe: $1.03/$4.11 per 1M (audio_token proxy)
 gpt-audio: $1.03/$2.05 per 1M (audio_token proxy)
 gpt-4o-realtime-preview: $2.05/$8.22 per 1M (realtime_token proxy)
 o4-mini-deep-research: $0.82/$3.29 per 1M (research_token proxy)
-gpt-4o-mini-tts: $4.93/$19.73 per 1M (chars_token proxy)
-tts-hd-1: $30.82/$30.82 per 1M (chars_token proxy)
 gpt-audio-mini: $30.82/$61.64 per 1M (chars_token proxy)
+## Removed from public surface (2026-03-27)
+gpt-4o-mini-tts: REMOVED — is_active=false (chars_token billing inert)
+tts-hd-1: REMOVED — is_active=false (chars_token billing inert)
+tts-1: REMOVED — is_active=false (legacy, chars_token billing inert)
 
 ## Important
 proxy-billed = NOT fully accurate. Worker has no special-unit logic. billing_unit stored but not used for calculation. Functional but approximate.
