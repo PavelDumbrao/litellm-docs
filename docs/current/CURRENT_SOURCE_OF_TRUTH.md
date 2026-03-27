@@ -71,6 +71,10 @@ ROLLOUT_READPACK.md, ROLL_OUT_CRITERIA.md, CHATGPT_READPACK.md, HIDE_PLAN.md, HI
 
 ---
 
+## Special-Unit Billing Note
+
+Some special-unit billing paths (chars_token, audio_token, etc.) exist in worker code but are NOT trusted for public billing until live-validated. Currently, chars_token path is INERT — LiteLLM spend logs do not contain character counts, so worker always falls back to token proxy.
+
 ## For New People / New Chats / New Agents
 
 1. Read this file
