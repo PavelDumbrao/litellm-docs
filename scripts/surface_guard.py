@@ -72,14 +72,14 @@ DB_DSN = "postgresql://n8n:uI5lQFcE1C7NGLUmhweZ@n8n-postgres:5432/railway"
 async def run_checks() -> dict:
     conn = await asyncpg.connect(DB_DSN)
     rows = await conn.fetch(
-        "SELECT model_public_name, billing_unit, is_active "
+        "SELECT public_model_name, billing_unit, is_active "
         "FROM billing.public_model_tariff"
     )
     await conn.close()
 
     all_rows = [dict(r) for r in rows]
     active = [m for m in all_rows if m["is_active"]]
-    active_names = {m["model_public_name"] for m in active}
+    active_names = {m["public_model_name"] for m in active}
 
     failures: list[str] = []
     checks: dict = {}
@@ -125,7 +125,7 @@ async def run_checks() -> dict:
     # CHECK 6 — дубликаты активных записей
     name_counts: dict[str, int] = {}
     for m in active:
-        n = m["model_public_name"]
+        n = m["public_model_name"]
         name_counts[n] = name_counts.get(n, 0) + 1
     duplicates = {k: v for k, v in name_counts.items() if v > 1}
     checks["duplicate_active_count"] = len(duplicates)
@@ -133,7 +133,7 @@ async def run_checks() -> dict:
         failures.append(f"CHECK6: duplicate active entries: {duplicates}")
 
     # CHECK 7 — ни одного активного chars_token
-    chars_active = [m["model_public_name"] for m in active if m["billing_unit"] == "chars_token"]
+    chars_active = [m["public_model_name"] for m in active if m["billing_unit"] == "chars_token"]
     checks["chars_token_active_count"] = len(chars_active)
     if chars_active:
         failures.append(f"CHECK7: chars_token models still active: {chars_active}")
