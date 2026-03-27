@@ -26,6 +26,7 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 DEPLOY_META_PATH = Path(__file__).resolve().parents[1] / ".deploy-release.json"
+STATIC_REVISION_PATH = DEPLOY_META_PATH.parent / "static" / "revision.json"
 
 
 def _load_deploy_revision() -> dict:
@@ -160,6 +161,14 @@ async def health():
 @app.get("/api/system/revision", tags=["system"])
 async def system_revision():
     """Явный revision endpoint для runtime traceability."""
+    return _load_deploy_revision()
+
+
+@app.get("/revision.json", include_in_schema=False)
+async def static_revision():
+    """Публичный revision stamp для frontend/static traceability."""
+    if STATIC_REVISION_PATH.is_file():
+        return FileResponse(str(STATIC_REVISION_PATH), media_type="application/json")
     return _load_deploy_revision()
 
 
