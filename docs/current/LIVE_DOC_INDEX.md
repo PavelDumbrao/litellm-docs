@@ -12,6 +12,8 @@ Canonical doc set synced with live production. Legacy docs are largely outdated.
 3b. LIVE_PUBLIC_ALIAS_MAP_EXPANDED.md — detailed mapping with providers, fallbacks, pricing
 4. LIVE_PRICING_REFERENCE.md — retail prices ($/1M)
 5. LIVE_ROUTING_AND_FALLBACK_REFERENCE.md — routing, providers, fallbacks
+6. SPECIAL_UNIT_MODEL_MATRIX.md — billing categories for all special-unit models (audio, search, realtime, research)
+7. SPECIAL_UNIT_OPERATING_POLICY.md — operating policy for all 11 proxy-billed public models (ACCEPTED_PROXY / REVIEW_LATER, removed TTS)
 
 ## Source of Truth Hierarchy
 1. config.yaml (live) — routing, models, fallbacks, providers
