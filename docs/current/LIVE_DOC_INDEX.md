@@ -15,6 +15,8 @@ Canonical doc set synced with live production. Legacy docs are largely outdated.
 6. SPECIAL_UNIT_MODEL_MATRIX.md — billing categories for all special-unit models (audio, search, realtime, research)
 7. SPECIAL_UNIT_OPERATING_POLICY.md — operating policy for all 11 proxy-billed public models (ACCEPTED_PROXY / REVIEW_LATER, removed TTS)
 8. PUBLIC_SURFACE_GUARD.md — repeatable drift-check layer: 8 checks, baseline 41/30/11, PASS/FAIL, deploy instructions
+9. USAGE_TRANSPARENCY_SOURCE_MAP.md — maps all usage/debit data sources (spend log, ledger, tariff, /usage) per audience
+10. USAGE_DISPLAY_POLICY.md — customer-facing display rules: Standard vs Estimated labels, caveat policy, wording principles
 
 ## Source of Truth Hierarchy
 1. config.yaml (live) — routing, models, fallbacks, providers
