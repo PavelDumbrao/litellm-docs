@@ -291,48 +291,20 @@ async def get_usage_logs(
     )
     rows = result.scalars().all()
 
-    # P0 transparency: batch lookup billing_unit из public_model_tariff
-    from sqlalchemy import text as _sa_text
-    _model_names = list({r.public_model_name for r in rows if r.public_model_name})
-    _bu_map = {}
-    if _model_names:
-        _phs = ", ".join(f":_m{i}" for i in range(len(_model_names)))
-        _params = {f"_m{i}": name for i, name in enumerate(_model_names)}
-        _tu = await db.execute(
-            _sa_text(f"SELECT public_model_name, billing_unit FROM billing.public_model_tariff WHERE public_model_name IN ({_phs})"),
-            _params
-        )
-        _bu_map = {row[0]: row[1] for row in _tu.fetchall()}
-
-    _PROXY_UNITS = {"audio_token", "search_token", "realtime_token", "research_token"}
-    _CAVEAT_MAP = {
-        "audio_token": "Audio processing costs are based on transcript token volume. Best-effort approximation.",
-        "search_token": "Search requests include a per-query overhead. Best-effort approximation.",
-        "realtime_token": "Realtime session costs include streaming overhead. Best-effort approximation.",
-        "research_token": "Deep research tasks run multiple internal steps. Best-effort approximation.",
-    }
-
-    def _billing_label(model_name, bu_map):
-        return "Estimated" if bu_map.get(model_name) in _PROXY_UNITS else "Standard"
-
-    def _caveat_text(model_name, bu_map):
-        unit = bu_map.get(model_name)
-        return _CAVEAT_MAP.get(unit) if unit in _PROXY_UNITS else None
-
     return {
         "logs": [
             {
                 "id": str(r.id),
                 "created_at": r.created_at.isoformat(),
                 "model": r.public_model_name or "",
+                "provider": r.provider or "",
                 "api_key_prefix": (r.api_key_hash or "")[:12] + "...",
                 "input_tokens": r.input_tokens,
                 "output_tokens": r.output_tokens,
                 "charged_credits": float(r.charged_credits),
                 "loyalty_discount_percent": float(r.loyalty_discount_percent),
-                "billing_type_label": _billing_label(r.public_model_name, _bu_map),
-                "proxy_billed": _billing_label(r.public_model_name, _bu_map) == "Estimated",
-                "caveat_text": _caveat_text(r.public_model_name, _bu_map),
+                "raw_cost_usd": float(r.raw_provider_cost_usd) if r.raw_provider_cost_usd else None,
+                "spend_log_id": r.litellm_spend_log_id,
             }
             for r in rows
         ],
@@ -340,124 +312,4 @@ async def get_usage_logs(
         "page": page,
         "per_page": per_page,
         "pages": (total + per_page - 1) // per_page if total > 0 else 1,
-    }
-
-# ---------------------------------------------------------------------------
-# BLOCK D: GET /usage/summary — сводка списаний с разбивкой Standard/Estimated
-# ---------------------------------------------------------------------------
-@router.get("/usage/summary")
-async def get_usage_summary(
-    current_user=Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-    date_from: Optional[str] = Query(None, description="YYYY-MM-DD"),
-    date_to: Optional[str] = Query(None, description="YYYY-MM-DD"),
-):
-    """Сводка usage/debit с разбивкой Standard vs Estimated. Не раскрывает upstream cost."""
-    user = await _get_user(db, current_user)
-
-    from sqlalchemy import and_, text as _sa_text, case
-    from datetime import timedelta
-
-    conditions = [UsageBillingSnapshot.user_id == user.id]
-    if date_from:
-        try:
-            conditions.append(UsageBillingSnapshot.created_at >= date.fromisoformat(date_from).isoformat())
-        except ValueError:
-            pass
-    if date_to:
-        try:
-            dt_to = date.fromisoformat(date_to)
-            conditions.append(UsageBillingSnapshot.created_at < (dt_to + timedelta(days=1)).isoformat())
-        except ValueError:
-            pass
-
-    _PROXY_UNITS = ("audio_token", "search_token", "realtime_token", "research_token")
-
-    # Batch query: join с billing.public_model_tariff чтобы получить billing_unit
-    from sqlalchemy import text as sa_text
-
-    where_clauses = "s.user_id = :user_id"
-    params = {"user_id": str(user.id)}
-    if date_from:
-        try:
-            where_clauses += " AND s.created_at >= :dt_from"
-            params["dt_from"] = date.fromisoformat(date_from).isoformat()
-        except ValueError:
-            pass
-    if date_to:
-        try:
-            where_clauses += " AND s.created_at < :dt_to"
-            params["dt_to"] = (date.fromisoformat(date_to) + timedelta(days=1)).isoformat()
-        except ValueError:
-            pass
-
-    # Aggregation query
-    agg_result = await db.execute(
-        sa_text(f"""
-            SELECT
-                COUNT(*) AS total_requests,
-                SUM(s.charged_credits) AS total_debit,
-                SUM(CASE WHEN t.billing_unit IN ('audio_token', 'search_token', 'realtime_token', 'research_token')
-                         THEN s.charged_credits ELSE 0 END) AS estimated_debit,
-                SUM(CASE WHEN t.billing_unit NOT IN ('audio_token', 'search_token', 'realtime_token', 'research_token')
-                         OR t.billing_unit IS NULL
-                         THEN s.charged_credits ELSE 0 END) AS standard_debit
-            FROM usage_billing_snapshot s
-            LEFT JOIN billing.public_model_tariff t ON t.public_model_name = s.public_model_name
-            WHERE {where_clauses}
-        """),
-        params
-    )
-    agg = agg_result.mappings().fetchone()
-
-    total_requests = int(agg["total_requests"] or 0)
-    total_debit = float(agg["total_debit"] or 0)
-    estimated_debit = float(agg["estimated_debit"] or 0)
-    standard_debit = float(agg["standard_debit"] or 0)
-    has_estimated = estimated_debit > 0
-
-    # Model breakdown
-    model_result = await db.execute(
-        sa_text(f"""
-            SELECT
-                s.public_model_name AS model,
-                t.billing_unit,
-                COUNT(*) AS requests,
-                SUM(s.charged_credits) AS debit
-            FROM usage_billing_snapshot s
-            LEFT JOIN billing.public_model_tariff t ON t.public_model_name = s.public_model_name
-            WHERE {where_clauses}
-            GROUP BY s.public_model_name, t.billing_unit
-            ORDER BY debit DESC
-            LIMIT 20
-        """),
-        params
-    )
-
-    models = []
-    for row in model_result.mappings():
-        bu = row["billing_unit"]
-        is_proxy = bu in _PROXY_UNITS if bu else False
-        models.append({
-            "model": row["model"] or "unknown",
-            "requests": int(row["requests"]),
-            "debit": float(row["debit"] or 0),
-            "billing_type_label": "Estimated" if is_proxy else "Standard",
-            "proxy_billed": is_proxy,
-        })
-
-    return {
-        "period_from": date_from,
-        "period_to": date_to,
-        "total_requests": total_requests,
-        "total_debit": round(total_debit, 6),
-        "standard_debit": round(standard_debit, 6),
-        "estimated_debit": round(estimated_debit, 6),
-        "has_estimated": has_estimated,
-        "estimated_caveat": (
-            "Part of your total includes estimated charges from special-billing models "
-            "(audio, search, realtime). These amounts are best-effort approximations."
-            if has_estimated else None
-        ),
-        "models": models,
     }
