@@ -2,10 +2,10 @@
 from __future__ import annotations
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,6 +27,217 @@ import logging
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["billing"])
+
+OPERATOR_ECONOMICS_SNAPSHOT_DATE = "2026-03-27"
+OPERATOR_ECONOMICS_MODEL_MATRIX_TSV = """gpt-4o-audio-preview	Audio/Speech	audio_token	Estimated	https://poloai.top/v1	1	1.029444	4.108333	0.514	2.055	50.07	49.98	2
+gpt-audio	Audio/Speech	audio_token	Estimated	https://poloai.top/v1		1.029444	2.049444	0.514	1.027	50.07	49.89	1
+gpt-audio-mini	Audio/Speech	audio_token	Estimated	https://poloai.top/v1		30.826667	61.653333	15.411	30.822	50.01	50.01	1
+claude-haiku-4-5	Claude	token	Exact	https://anideaai.com/v1	1	1.596111	7.999444	0.056	0.28	96.49	96.5	2
+claude-haiku-4-5-thinking	Claude	token	Exact	https://poloai.top/v1		1.596111	7.999444	0.11	0.548	93.11	93.15	2
+claude-opus-4-5-thinking	Claude	token	Exact	https://poloai.top/v1		29.995556	149.996667	0.548	2.74	98.17	98.17	2
+claude-opus-4-6	Claude	token	Exact	https://anideaai.com/v1	1	29.995556	149.996667	0.28	1.4	99.07	99.07	2
+claude-opus-4-6-thinking	Claude	token	Exact	https://jeniya.top/v1		29.995556	149.996667	0.822	4.11	97.26	97.26	1
+claude-sonnet-4-5-thinking	Claude	token	Exact	https://poloai.top/v1		5.997222	29.995556	0.329	1.644	94.51	94.52	2
+claude-sonnet-4-6	Claude	token	Exact	https://anideaai.com/v1	1	5.997222	29.995556	0.17	0.84	97.17	97.2	2
+text-embedding-3-large	Embeddings	token	Exact	https://poloai.top/v1	1	0.264444	0.0	0.027	0.027	89.79		2
+text-embedding-3-small	Embeddings	token	Exact	https://poloai.top/v1	1	0.037778	0.0	0.004	0.004	89.41		2
+text-embedding-ada-002	Embeddings	token	Exact	https://poloai.top/v1	1	0.198333	0.0	0.021	0.021	89.41		2
+gemini-2.5-flash	Gemini	token	Exact	https://jeniya.top/v1	1	0.302222	1.199444	0.032	0.268	89.41	77.66	2
+gemini-2.5-flash-lite	Gemini	token	Exact	https://poloai.top/v1		0.198333	0.802778	0.014	0.055	92.94	93.15	1
+gemini-2.5-flash-thinking	Gemini	token	Exact	https://poloai.top/v1		0.302222	1.199444	0.041	0.342	86.43	71.49	1
+gemini-3-flash-preview	Gemini	token	Exact	https://jeniya.top/v1	1	0.132222	0.821667	0.053	0.321	59.92	60.93	2
+gemini-3-flash-preview-nothinking	Gemini	token	Exact	https://poloai.top/v1		0.132222	0.821667	0.068	0.411	48.57	49.98	2
+gemini-3-flash-preview-thinking	Gemini	token	Exact	https://poloai.top/v1		0.132222	0.821667	0.068	0.411	48.57	49.98	2
+gemini-3.1-pro-preview	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	1
+gemini-3.1-pro-preview-high	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	2
+gemini-3.1-pro-preview-low	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	2
+gemini-3.1-pro-preview-medium	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	2
+gpt-4.1	General Chat	token	Incomplete			4.004444	15.998889					0
+gpt-4.1-mini	General Chat	token	Exact	https://poloai.top/v1	1	0.802778	3.192222	0.082	0.329	89.79	89.69	2
+gpt-4.1-nano	General Chat	token	Exact	https://poloai.top/v1	1	0.198333	0.802778	0.021	0.082	89.41	89.79	2
+gpt-4o	General Chat	token	Exact	https://poloai.top/v1	1	4.996111	20.003333	0.514	2.055	89.71	89.73	2
+gpt-4o-mini	General Chat	token	Exact	https://poloai.top/v1	1	0.302222	1.199444	0.031	0.123	89.74	89.75	2
+gpt-5.3-codex	General Chat	token	Exact	https://jeniya.top/v1	1	0.377778	2.993889	0.187	1.497	50.5	50.0	2
+gpt-5.4	General Chat	token	Exact	https://jeniya.top/v1	1	1.029444	8.216667	0.267	1.604	74.06	80.48	4
+gpt-5.4-mini	General Chat	token	Exact	https://jeniya.top/v1	1	0.122778	0.717778	0.06	0.36	51.13	49.85	2
+gpt-5.4-nano	General Chat	token	Exact	https://jeniya.top/v1	1	0.037778	0.396667	0.02	0.2	47.06	49.58	2
+i7dc-claude-haiku-4-5	I7DC Relay		Incomplete	https://i7dc.com/api				0.15	0.75			1
+i7dc-claude-opus-4-6	I7DC Relay		Incomplete	https://i7dc.com/api				0.75	3.75			1
+i7dc-claude-sonnet-4-6	I7DC Relay		Incomplete	https://i7dc.com/api				0.45	2.25			1
+deepseek-v3.2	Other	token	Exact	https://jeniya.top/v1	1	0.538333	2.200556	0.16	0.241	70.28	89.05	2
+gpt-4o-mini-realtime-preview	Realtime	realtime_token	Estimated	https://poloai.top/v1		0.245556	0.982222	0.123	0.493	49.91	49.81	1
+gpt-4o-realtime-preview	Realtime	realtime_token	Estimated	https://poloai.top/v1		2.049444	8.216667	1.027	4.11	49.89	49.98	1
+gpt-4o-mini-search-preview	Search/Research	search_token	Estimated	https://poloai.top/v1		0.056667	0.226667	0.029	0.115	48.82	49.26	1
+gpt-4o-search-preview	Search/Research	search_token	Estimated	https://poloai.top/v1		1.029444	4.108333	0.514	2.055	50.07	49.98	1
+gpt-5-search-api	Search/Research	search_token	Estimated	https://poloai.top/v1		1.029444	8.216667	0.514	4.11	50.07	49.98	1
+o4-mini-deep-research	Search/Research	research_token	Estimated	https://poloai.top/v1		0.821667	3.286667	0.411	1.644	49.98	49.98	1
+gpt-4o-mini-transcribe	Transcription	audio_token	Estimated	https://poloai.top/v1		0.51	2.049444	0.257	1.027	49.61	49.89	1
+gpt-4o-transcribe	Transcription	audio_token	Estimated	https://poloai.top/v1	1	1.029444	4.108333	0.514	2.055	50.07	49.98	2"""
+
+
+def _require_operator_secret(
+    x_operator_secret: Optional[str] = Header(None, alias="X-Operator-Secret"),
+) -> None:
+    """Пускает только внутреннего оператора с секретом из runtime env."""
+    import os
+    expected_secret = os.environ.get("OPERATOR_SECRET") or getattr(settings, "OPERATOR_SECRET", None)
+    if not expected_secret or not x_operator_secret or x_operator_secret != expected_secret:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+
+def _parse_optional_float(raw: str) -> Optional[float]:
+    """Преобразует строку в float или возвращает None для пустого значения."""
+    if not raw:
+        return None
+    return float(raw)
+
+
+def _parse_optional_int(raw: str) -> Optional[int]:
+    """Преобразует строку в int или возвращает None для пустого значения."""
+    if not raw:
+        return None
+    return int(raw)
+
+
+def _provider_label(api_base: Optional[str]) -> Optional[str]:
+    """Возвращает короткую метку провайдера для internal operator view."""
+    provider_map = {
+        "https://anideaai.com/v1": "ANIDEAAI",
+        "https://poloai.top/v1": "POLO",
+        "https://jeniya.top/v1": "JENIYA",
+        "https://i7dc.com/api": "I7DC",
+    }
+    return provider_map.get(api_base or "", api_base)
+
+
+def _build_proxy_caveat(confidence: str, billing_unit: Optional[str]) -> Optional[str]:
+    """Возвращает caveat для operator economics rows."""
+    if confidence == "Estimated":
+        return f"{billing_unit or 'special_unit'}-billing использует proxy economics view и не должен трактоваться как exact."
+    if confidence == "Incomplete":
+        return "Покрытие economics incomplete: отсутствует retail или provider side truth."
+    return None
+
+
+def _load_operator_economics_model_rows() -> list[dict[str, Any]]:
+    """Возвращает модельный economics snapshot, собранный по live-данным на дату аудита."""
+    rows: list[dict[str, Any]] = []
+    for raw in OPERATOR_ECONOMICS_MODEL_MATRIX_TSV.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        parts = line.split("\t")
+        (
+            model,
+            category,
+            billing_unit,
+            confidence,
+            api_base,
+            order,
+            retail_input,
+            retail_output,
+            cost_input,
+            cost_output,
+            margin_input,
+            margin_output,
+            provider_paths_count,
+        ) = parts
+        rows.append(
+            {
+                "model": model,
+                "category": category,
+                "billing_unit": billing_unit or None,
+                "confidence": confidence,
+                "provider_label": _provider_label(api_base or None),
+                "provider_api_base": api_base or None,
+                "primary_provider_order": _parse_optional_int(order),
+                "provider_paths_count": int(provider_paths_count),
+                "retail_input_usd_per_1m": _parse_optional_float(retail_input),
+                "retail_output_usd_per_1m": _parse_optional_float(retail_output),
+                "provider_input_cost_usd_per_1m": _parse_optional_float(cost_input),
+                "provider_output_cost_usd_per_1m": _parse_optional_float(cost_output),
+                "input_margin_pct": _parse_optional_float(margin_input),
+                "output_margin_pct": _parse_optional_float(margin_output),
+                "proxy_caveat": _build_proxy_caveat(confidence, billing_unit or None),
+            }
+        )
+    return rows
+
+
+def _build_operator_economics_category_rows(
+    model_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Строит category-level economics rollup по модельному snapshot."""
+    buckets: dict[str, dict[str, Any]] = {}
+    for row in model_rows:
+        category = row["category"]
+        bucket = buckets.setdefault(
+            category,
+            {
+                "category": category,
+                "total_models": 0,
+                "exact_count": 0,
+                "estimated_count": 0,
+                "incomplete_count": 0,
+                "input_margin_sum": 0.0,
+                "input_margin_count": 0,
+                "output_margin_sum": 0.0,
+                "output_margin_count": 0,
+            },
+        )
+        bucket["total_models"] += 1
+        bucket[f"{row['confidence'].lower()}_count"] += 1
+        if row["input_margin_pct"] is not None:
+            bucket["input_margin_sum"] += row["input_margin_pct"]
+            bucket["input_margin_count"] += 1
+        if row["output_margin_pct"] is not None:
+            bucket["output_margin_sum"] += row["output_margin_pct"]
+            bucket["output_margin_count"] += 1
+
+    category_rows: list[dict[str, Any]] = []
+    for category in sorted(buckets):
+        bucket = buckets[category]
+        avg_input = None
+        if bucket["input_margin_count"] > 0:
+            avg_input = round(bucket["input_margin_sum"] / bucket["input_margin_count"], 2)
+        avg_output = None
+        if bucket["output_margin_count"] > 0:
+            avg_output = round(bucket["output_margin_sum"] / bucket["output_margin_count"], 2)
+
+        note = "Mixed confidence category."
+        if bucket["estimated_count"] == bucket["total_models"]:
+            note = "Proxy economics only."
+        elif bucket["incomplete_count"] == bucket["total_models"]:
+            note = "Coverage incomplete."
+        elif bucket["exact_count"] == bucket["total_models"]:
+            note = "Token-based exact view."
+
+        category_rows.append(
+            {
+                "category": category,
+                "total_models": bucket["total_models"],
+                "exact_count": bucket["exact_count"],
+                "estimated_count": bucket["estimated_count"],
+                "incomplete_count": bucket["incomplete_count"],
+                "avg_input_margin_pct": avg_input,
+                "avg_output_margin_pct": avg_output,
+                "note": note,
+            }
+        )
+    return category_rows
+
+
+def _build_operator_economics_summary(model_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Строит верхнеуровневое summary по confidence статусам."""
+    exact_count = sum(1 for row in model_rows if row["confidence"] == "Exact")
+    estimated_count = sum(1 for row in model_rows if row["confidence"] == "Estimated")
+    incomplete_count = sum(1 for row in model_rows if row["confidence"] == "Incomplete")
+    return {
+        "total_models": len(model_rows),
+        "exact_count": exact_count,
+        "estimated_count": estimated_count,
+        "incomplete_count": incomplete_count,
+    }
 
 
 def _get_bonus_tier(amount_rub: int) -> float:
@@ -237,6 +448,38 @@ async def get_model_tariffs(db: AsyncSession = Depends(get_db)):
         }
         for t in tariffs
     ]}
+
+
+@router.get("/operator/economics-view")
+async def get_operator_economics_view(
+    _current_user=Depends(get_current_user),
+    _operator_secret: None = Depends(_require_operator_secret),
+):
+    """Возвращает operator-only economics snapshot по моделям и категориям."""
+    model_rows = _load_operator_economics_model_rows()
+    category_rows = _build_operator_economics_category_rows(model_rows)
+    summary = _build_operator_economics_summary(model_rows)
+
+    return {
+        "snapshot_date": OPERATOR_ECONOMICS_SNAPSHOT_DATE,
+        "visibility": "operator-only",
+        "calculation_mode": "snapshot-report",
+        "calculation_basis": {
+            "fixed_rub_per_credit": float(getattr(settings, "FIXED_RUB_PER_CREDIT", 85.0)),
+            "fx_rub_per_usd_proxy": 90.0,
+            "retail_formula": "rate_credits × 1_000_000 × FIXED_RUB_PER_CREDIT ÷ 90",
+            "provider_formula": "cost_per_token × 1_000_000",
+            "note": "Snapshot derived from live billing.public_model_tariff + live LiteLLM config at audit date.",
+        },
+        "summary": summary,
+        "category_rows": category_rows,
+        "model_rows": model_rows,
+        "source_docs": [
+            "docs/current/PROVIDER_ECONOMICS_SOURCE_MAP.md",
+            "docs/current/PROVIDER_ECONOMICS_REPORT.md",
+            "docs/current/PROVIDER_ECONOMICS_CONFIDENCE_MATRIX.md",
+        ],
+    }
 
 
 # ---------------------------------------------------------------------------

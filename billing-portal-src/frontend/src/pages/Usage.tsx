@@ -77,6 +77,59 @@ interface OperatorDetail {
     operator_verdict: string
 }
 
+interface OperatorEconomicsSummary {
+    total_models: number
+    exact_count: number
+    estimated_count: number
+    incomplete_count: number
+}
+
+interface OperatorEconomicsCategoryRow {
+    category: string
+    total_models: number
+    exact_count: number
+    estimated_count: number
+    incomplete_count: number
+    avg_input_margin_pct: number | null
+    avg_output_margin_pct: number | null
+    note: string
+}
+
+interface OperatorEconomicsModelRow {
+    model: string
+    category: string
+    billing_unit: string | null
+    confidence: string
+    provider_label: string | null
+    provider_api_base: string | null
+    primary_provider_order: number | null
+    provider_paths_count: number
+    retail_input_usd_per_1m: number | null
+    retail_output_usd_per_1m: number | null
+    provider_input_cost_usd_per_1m: number | null
+    provider_output_cost_usd_per_1m: number | null
+    input_margin_pct: number | null
+    output_margin_pct: number | null
+    proxy_caveat: string | null
+}
+
+interface OperatorEconomicsView {
+    snapshot_date: string
+    visibility: string
+    calculation_mode: string
+    calculation_basis: {
+        fixed_rub_per_credit: number
+        fx_rub_per_usd_proxy: number
+        retail_formula: string
+        provider_formula: string
+        note: string
+    }
+    summary: OperatorEconomicsSummary
+    category_rows: OperatorEconomicsCategoryRow[]
+    model_rows: OperatorEconomicsModelRow[]
+    source_docs: string[]
+}
+
 const OPERATOR_SECRET_STORAGE_KEY = "billing_operator_secret"
 
 function formatDateTime(value?: string | null) {
@@ -95,6 +148,16 @@ function formatNumber(value?: number | null, digits = 6) {
     return value.toFixed(digits)
 }
 
+function formatUsdPer1M(value?: number | null) {
+    if (value === null || value === undefined) return "—"
+    return `$${value.toFixed(3)}`
+}
+
+function formatPercent(value?: number | null) {
+    if (value === null || value === undefined) return "—"
+    return `${value.toFixed(2)}%`
+}
+
 function BillingTypeLabel({ label, proxyBilled }: { label: string; proxyBilled: boolean }) {
     if (proxyBilled) {
         return (
@@ -106,6 +169,28 @@ function BillingTypeLabel({ label, proxyBilled }: { label: string; proxyBilled: 
     return (
         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-gray-800 text-gray-400">
             {label}
+        </span>
+    )
+}
+
+function ConfidenceBadge({ confidence }: { confidence: string }) {
+    if (confidence === "Exact") {
+        return (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-900/40 text-emerald-300 border border-emerald-800/50">
+                Exact
+            </span>
+        )
+    }
+    if (confidence === "Estimated") {
+        return (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-900/40 text-amber-300 border border-amber-800/50">
+                Estimated
+            </span>
+        )
+    }
+    return (
+        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-rose-900/40 text-rose-300 border border-rose-800/50">
+            Incomplete
         </span>
     )
 }
@@ -299,6 +384,177 @@ function OperatorDetailModal({
     )
 }
 
+function OperatorEconomicsSummaryCards({ summary }: { summary: OperatorEconomicsSummary }) {
+    return (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="card">
+                <p className="text-gray-500 text-xs mb-1">Всего моделей</p>
+                <p className="text-white text-lg font-semibold">{summary.total_models}</p>
+            </div>
+            <div className="card">
+                <p className="text-gray-500 text-xs mb-1">Exact</p>
+                <p className="text-emerald-300 text-lg font-semibold">{summary.exact_count}</p>
+            </div>
+            <div className="card">
+                <p className="text-gray-500 text-xs mb-1">Estimated</p>
+                <p className="text-amber-300 text-lg font-semibold">{summary.estimated_count}</p>
+            </div>
+            <div className="card">
+                <p className="text-gray-500 text-xs mb-1">Incomplete</p>
+                <p className="text-rose-300 text-lg font-semibold">{summary.incomplete_count}</p>
+            </div>
+        </div>
+    )
+}
+
+function OperatorEconomicsCategoryTable({ rows }: { rows: OperatorEconomicsCategoryRow[] }) {
+    return (
+        <SectionCard title="Category view">
+            <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                    <thead>
+                        <tr className="text-gray-500 text-left border-b border-gray-800">
+                            <th className="pb-2 pr-3">Категория</th>
+                            <th className="pb-2 pr-3">Моделей</th>
+                            <th className="pb-2 pr-3">Exact</th>
+                            <th className="pb-2 pr-3">Estimated</th>
+                            <th className="pb-2 pr-3">Incomplete</th>
+                            <th className="pb-2 pr-3">Avg in margin</th>
+                            <th className="pb-2">Avg out margin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((row) => (
+                            <Fragment key={row.category}>
+                                <tr className="border-b border-gray-800/40">
+                                    <td className="py-2 pr-3 text-white">{row.category}</td>
+                                    <td className="py-2 pr-3 text-gray-300">{row.total_models}</td>
+                                    <td className="py-2 pr-3 text-emerald-300">{row.exact_count}</td>
+                                    <td className="py-2 pr-3 text-amber-300">{row.estimated_count}</td>
+                                    <td className="py-2 pr-3 text-rose-300">{row.incomplete_count}</td>
+                                    <td className="py-2 pr-3 text-gray-300">{formatPercent(row.avg_input_margin_pct)}</td>
+                                    <td className="py-2 text-gray-300">{formatPercent(row.avg_output_margin_pct)}</td>
+                                </tr>
+                                <tr className="border-b border-gray-800/20">
+                                    <td colSpan={7} className="pb-2 pt-0 text-gray-500 italic">{row.note}</td>
+                                </tr>
+                            </Fragment>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </SectionCard>
+    )
+}
+
+function OperatorEconomicsModelTable({ rows }: { rows: OperatorEconomicsModelRow[] }) {
+    return (
+        <SectionCard title="Model view">
+            <div className="max-h-[420px] overflow-auto">
+                <table className="w-full text-xs">
+                    <thead>
+                        <tr className="text-gray-500 text-left border-b border-gray-800 sticky top-0 bg-gray-950">
+                            <th className="pb-2 pr-3">Модель</th>
+                            <th className="pb-2 pr-3">Категория</th>
+                            <th className="pb-2 pr-3">Confidence</th>
+                            <th className="pb-2 pr-3">Retail in/out</th>
+                            <th className="pb-2 pr-3">Cost in/out</th>
+                            <th className="pb-2 pr-3">Margin in/out</th>
+                            <th className="pb-2">Provider</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((row) => (
+                            <Fragment key={row.model}>
+                                <tr className="border-b border-gray-800/40 align-top">
+                                    <td className="py-2 pr-3 text-white font-mono">{row.model}</td>
+                                    <td className="py-2 pr-3 text-gray-300">{row.category}</td>
+                                    <td className="py-2 pr-3"><ConfidenceBadge confidence={row.confidence} /></td>
+                                    <td className="py-2 pr-3 text-gray-300">
+                                        <div>{formatUsdPer1M(row.retail_input_usd_per_1m)}</div>
+                                        <div className="text-gray-500">{formatUsdPer1M(row.retail_output_usd_per_1m)}</div>
+                                    </td>
+                                    <td className="py-2 pr-3 text-gray-300">
+                                        <div>{formatUsdPer1M(row.provider_input_cost_usd_per_1m)}</div>
+                                        <div className="text-gray-500">{formatUsdPer1M(row.provider_output_cost_usd_per_1m)}</div>
+                                    </td>
+                                    <td className="py-2 pr-3 text-gray-300">
+                                        <div>{formatPercent(row.input_margin_pct)}</div>
+                                        <div className="text-gray-500">{formatPercent(row.output_margin_pct)}</div>
+                                    </td>
+                                    <td className="py-2 text-gray-300">
+                                        <div>{row.provider_label || "—"}</div>
+                                        <div className="text-gray-500 text-[11px]">
+                                            {row.billing_unit || "—"} · paths: {row.provider_paths_count}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {row.proxy_caveat && (
+                                    <tr className="border-b border-gray-800/20">
+                                        <td colSpan={7} className="pb-2 pt-0 text-amber-500/80 italic">
+                                            {row.proxy_caveat}
+                                        </td>
+                                    </tr>
+                                )}
+                            </Fragment>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </SectionCard>
+    )
+}
+
+function OperatorEconomicsPanel({
+    enabled,
+    hasSecret,
+    loading,
+    error,
+    data,
+    onReload,
+}: {
+    enabled: boolean
+    hasSecret: boolean
+    loading: boolean
+    error: string | null
+    data: OperatorEconomicsView | null
+    onReload: () => void
+}) {
+    if (!enabled) return null
+
+    return (
+        <div className="card mb-4 space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                    <p className="text-white text-sm font-medium">Operator economics view</p>
+                    <p className="text-gray-500 text-xs mt-1">Margin picture по моделям и категориям. Только для internal operator mode.</p>
+                </div>
+                <button className="px-3 py-1.5 text-xs border border-cyan-800 rounded text-cyan-300 hover:text-white hover:border-cyan-500" onClick={onReload}>
+                    Обновить economics
+                </button>
+            </div>
+
+            {!hasSecret && <p className="text-gray-500 text-sm">Сначала введи X-Operator-Secret, чтобы загрузить internal economics view.</p>}
+            {loading && <p className="text-gray-400 text-sm">Загрузка economics snapshot...</p>}
+            {error && !loading && <p className="text-red-400 text-sm">{error}</p>}
+
+            {data && !loading && (
+                <div className="space-y-4">
+                    <div className="rounded border border-gray-800/60 px-3 py-2">
+                        <p className="text-gray-500 text-xs">Snapshot</p>
+                        <p className="text-white text-sm mt-1">{data.snapshot_date} · {data.calculation_mode}</p>
+                        <p className="text-gray-500 text-xs mt-1">{data.calculation_basis.note}</p>
+                    </div>
+
+                    <OperatorEconomicsSummaryCards summary={data.summary} />
+                    <OperatorEconomicsCategoryTable rows={data.category_rows} />
+                    <OperatorEconomicsModelTable rows={data.model_rows} />
+                </div>
+            )}
+        </div>
+    )
+}
+
 function SummaryCards({ summary }: { summary: UsageSummary | null }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
@@ -471,13 +727,16 @@ export default function Usage() {
     const [detailLoading, setDetailLoading] = useState(false)
     const [detailError, setDetailError] = useState<string | null>(null)
     const [detailData, setDetailData] = useState<OperatorDetail | null>(null)
+    const [economicsLoading, setEconomicsLoading] = useState(false)
+    const [economicsError, setEconomicsError] = useState<string | null>(null)
+    const [economicsData, setEconomicsData] = useState<OperatorEconomicsView | null>(null)
     const [operatorSecret, setOperatorSecret] = useState("")
 
     const operatorRequested = typeof window !== "undefined"
         && new URLSearchParams(window.location.search).get("operator") === "1"
 
     const loadSummary = () => {
-        usageApi.summary().then(r => setSummary(r.data)).catch(() => setSummary(null))
+        usageApi.summary().then((r: { data: UsageSummary | null }) => setSummary(r.data)).catch(() => setSummary(null))
     }
 
     useEffect(() => {
@@ -488,6 +747,15 @@ export default function Usage() {
     }, [])
 
     useEffect(() => {
+        if (!operatorRequested || !operatorSecret) {
+            setEconomicsData(null)
+            setEconomicsError(null)
+            return
+        }
+        void loadOperatorEconomics(operatorSecret)
+    }, [operatorRequested, operatorSecret])
+
+    useEffect(() => {
         setLoading(true)
         usageApi.logs({
             date_from: dateFrom || undefined,
@@ -495,7 +763,7 @@ export default function Usage() {
             model: modelFilter || undefined,
             page,
             per_page: 50,
-        }).then(r => {
+        }).then((r: { data: LogsResponse }) => {
             setLogsData(r.data || { logs: [], total: 0, page: 1, per_page: 50, pages: 1 })
         }).finally(() => setLoading(false))
     }, [page, dateFrom, dateTo, modelFilter])
@@ -514,6 +782,8 @@ export default function Usage() {
         setDetailData(null)
         setDetailError(null)
         setDetailOpen(false)
+        setEconomicsData(null)
+        setEconomicsError(null)
     }
 
     const loadOperatorDetail = async (snapshotId: string) => {
@@ -542,6 +812,31 @@ export default function Usage() {
         }
     }
 
+    const loadOperatorEconomics = async (secretOverride?: string) => {
+        const secret = secretOverride || operatorSecret || promptOperatorSecret()
+        if (!secret) return
+
+        setEconomicsLoading(true)
+        setEconomicsError(null)
+
+        try {
+            const response = await fetch("/api/billing/operator/economics-view", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+                    "X-Operator-Secret": secret,
+                },
+            })
+            const payload = await response.json().catch(() => ({}))
+            if (!response.ok) throw new Error(payload.detail || `HTTP ${response.status}`)
+            setEconomicsData(payload as OperatorEconomicsView)
+        } catch (error) {
+            setEconomicsData(null)
+            setEconomicsError(error instanceof Error ? error.message : "Не удалось загрузить economics view")
+        } finally {
+            setEconomicsLoading(false)
+        }
+    }
+
     const resetFilters = () => {
         setDateFrom("")
         setDateTo("")
@@ -559,6 +854,15 @@ export default function Usage() {
                 hasSecret={operatorSecret.length > 0}
                 onEnable={promptOperatorSecret}
                 onClear={clearOperatorSecret}
+            />
+
+            <OperatorEconomicsPanel
+                enabled={operatorRequested}
+                hasSecret={operatorSecret.length > 0}
+                loading={economicsLoading}
+                error={economicsError}
+                data={economicsData}
+                onReload={() => { void loadOperatorEconomics() }}
             />
 
             <SummaryCards summary={summary} />
@@ -584,8 +888,8 @@ export default function Usage() {
                 loading={loading}
                 page={page}
                 operatorRequested={operatorRequested}
-                onPrev={() => setPage(p => p - 1)}
-                onNext={() => setPage(p => p + 1)}
+                onPrev={() => setPage((prev: number) => prev - 1)}
+                onNext={() => setPage((prev: number) => prev + 1)}
                 onDetails={loadOperatorDetail}
             />
 
