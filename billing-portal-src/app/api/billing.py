@@ -450,6 +450,15 @@ async def get_model_tariffs(db: AsyncSession = Depends(get_db)):
     ]}
 
 
+# Модели в стадии тестирования — не в production public surface
+# Не участвуют в customer billing, исключены из HIGH-priority remediation
+TEST_ONLY_MODELS: frozenset[str] = frozenset({
+    "i7dc-claude-haiku-4-5",
+    "i7dc-claude-opus-4-6",
+    "i7dc-claude-sonnet-4-6",
+})
+
+
 def _evaluate_margin_alerts(model_rows: list[dict]) -> list[dict]:
     """Оценивает каждую модель по threshold matrix и возвращает список alerts."""
     alerts: list[dict] = []
@@ -476,21 +485,39 @@ def _evaluate_margin_alerts(model_rows: list[dict]) -> list[dict]:
         in_cost = row["provider_input_cost_usd_per_1m"]
         out_cost = row["provider_output_cost_usd_per_1m"]
 
-        # INCOMPLETE_ECONOMICS
+        # INCOMPLETE_ECONOMICS (с разделением: test-only vs production)
         if confidence == "Incomplete":
-            alerts.append({
-                "alert_class": "INCOMPLETE_ECONOMICS",
-                "severity": "HIGH",
-                "model": model,
-                "category": category,
-                "confidence": confidence,
-                "input_margin_pct": in_margin,
-                "output_margin_pct": out_margin,
-                "recommended_action": (
-                    "Запросить provider cost данные. "
-                    "Если недоступны — рассмотреть деактивацию или explicit markup политику."
-                ),
-            })
+            if model in TEST_ONLY_MODELS:
+                alerts.append({
+                    "alert_class": "TEST_ONLY_INCOMPLETE",
+                    "severity": "LOW",
+                    "model": model,
+                    "category": category,
+                    "confidence": confidence,
+                    "scope": "test-only",
+                    "input_margin_pct": in_margin,
+                    "output_margin_pct": out_margin,
+                    "recommended_action": (
+                        "Модель в стадии тестирования — не в production public surface. "
+                        "Remediation не требуется до перехода в production. "
+                        "При production launch: запросить i7dc invoice + создать retail tariff entry."
+                    ),
+                })
+            else:
+                alerts.append({
+                    "alert_class": "INCOMPLETE_ECONOMICS",
+                    "severity": "HIGH",
+                    "model": model,
+                    "category": category,
+                    "confidence": confidence,
+                    "scope": "production",
+                    "input_margin_pct": in_margin,
+                    "output_margin_pct": out_margin,
+                    "recommended_action": (
+                        "Запросить provider cost данные. "
+                        "Если недоступны — рассмотреть деактивацию или explicit markup политику."
+                    ),
+                })
             continue  # Incomplete — дальше не оцениваем margin
 
         # NEGATIVE_MARGIN
