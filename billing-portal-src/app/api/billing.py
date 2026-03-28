@@ -52,7 +52,7 @@ gemini-3.1-pro-preview	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.2866
 gemini-3.1-pro-preview-high	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	2
 gemini-3.1-pro-preview-low	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	2
 gemini-3.1-pro-preview-medium	Gemini	token	Exact	https://poloai.top/v1		0.547778	3.286667	0.274	1.644	49.98	49.98	2
-gpt-4.1	General Chat	token	Incomplete			4.004444	15.998889					0
+gpt-4.1	General Chat	token	Estimated	https://poloai.top/v1	1	4.004444	15.998889	2.0	8.0	50.05	50.0	1
 gpt-4.1-mini	General Chat	token	Exact	https://poloai.top/v1	1	0.802778	3.192222	0.082	0.329	89.79	89.69	2
 gpt-4.1-nano	General Chat	token	Exact	https://poloai.top/v1	1	0.198333	0.802778	0.021	0.082	89.41	89.79	2
 gpt-4o	General Chat	token	Exact	https://poloai.top/v1	1	4.996111	20.003333	0.514	2.055	89.71	89.73	2
