@@ -1,6 +1,6 @@
 # LIVE ROUTING AND FALLBACK REFERENCE
 
-Date: 2026-03-26. Source: config.yaml.
+Date: 2026-03-28. Source: config.yaml.
 
 ## Routing
 simple-shuffle, 2 retries, 300s timeout, 3 allowed fails, 30s cooldown, pre_call_checks enabled.
@@ -24,6 +24,7 @@ gpt-5.4 -> gpt-4o -> gpt-4o-mini
 gpt-5.4-mini -> gpt-4o-mini -> gpt-4.1-mini
 gpt-5.4-nano -> gpt-4.1-nano -> gpt-4o-mini
 gpt-5.3-codex -> gpt-5.4 -> gpt-4o
+gpt-4.1 -> gpt-4o -> gpt-4.1-mini
 gpt-4o -> gpt-4o-mini -> gpt-4.1-mini
 gpt-4.1-mini -> gpt-4o-mini -> gpt-4.1-nano
 gpt-4.1-nano -> gpt-4.1-mini -> gpt-4o-mini
