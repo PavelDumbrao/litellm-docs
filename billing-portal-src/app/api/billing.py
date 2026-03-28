@@ -450,6 +450,191 @@ async def get_model_tariffs(db: AsyncSession = Depends(get_db)):
     ]}
 
 
+def _evaluate_margin_alerts(model_rows: list[dict]) -> list[dict]:
+    """Оценивает каждую модель по threshold matrix и возвращает список alerts."""
+    alerts: list[dict] = []
+
+    # Собираем категории для ESTIMATED_ONLY_CATEGORY
+    category_confidence: dict[str, set] = {}
+    for row in model_rows:
+        cat = row["category"]
+        category_confidence.setdefault(cat, set()).add(row["confidence"])
+
+    estimated_only_categories = {
+        cat for cat, confs in category_confidence.items()
+        if confs == {"Estimated"}
+    }
+
+    already_alerted_categories: set[str] = set()
+
+    for row in model_rows:
+        model = row["model"]
+        category = row["category"]
+        confidence = row["confidence"]
+        in_margin = row["input_margin_pct"]
+        out_margin = row["output_margin_pct"]
+        in_cost = row["provider_input_cost_usd_per_1m"]
+        out_cost = row["provider_output_cost_usd_per_1m"]
+
+        # INCOMPLETE_ECONOMICS
+        if confidence == "Incomplete":
+            alerts.append({
+                "alert_class": "INCOMPLETE_ECONOMICS",
+                "severity": "HIGH",
+                "model": model,
+                "category": category,
+                "confidence": confidence,
+                "input_margin_pct": in_margin,
+                "output_margin_pct": out_margin,
+                "recommended_action": (
+                    "Запросить provider cost данные. "
+                    "Если недоступны — рассмотреть деактивацию или explicit markup политику."
+                ),
+            })
+            continue  # Incomplete — дальше не оцениваем margin
+
+        # NEGATIVE_MARGIN
+        if (in_margin is not None and in_margin < 0) or (out_margin is not None and out_margin < 0):
+            alerts.append({
+                "alert_class": "NEGATIVE_MARGIN",
+                "severity": "CRITICAL",
+                "model": model,
+                "category": category,
+                "confidence": confidence,
+                "input_margin_pct": in_margin,
+                "output_margin_pct": out_margin,
+                "recommended_action": (
+                    "Немедленно проверить retail tariff vs provider cost. "
+                    "Скорректировать retail rate или деактивировать модель."
+                ),
+            })
+            continue
+
+        # LOW_MARGIN_CRITICAL (только для Exact — у Estimated слишком высокая погрешность)
+        if confidence == "Exact":
+            critical = (
+                (in_margin is not None and 0 <= in_margin < 30) or
+                (out_margin is not None and 0 <= out_margin < 30)
+            )
+            if critical:
+                alerts.append({
+                    "alert_class": "LOW_MARGIN_CRITICAL",
+                    "severity": "HIGH",
+                    "model": model,
+                    "category": category,
+                    "confidence": confidence,
+                    "input_margin_pct": in_margin,
+                    "output_margin_pct": out_margin,
+                    "recommended_action": (
+                        "Оценить реальный token mix по usage-logs. "
+                        "Рассмотреть увеличение retail rate."
+                    ),
+                })
+                continue
+
+        # LOW_MARGIN_WARNING
+        warning = (
+            (in_margin is not None and 30 <= in_margin < 50) or
+            (out_margin is not None and 30 <= out_margin < 50)
+        )
+        if warning:
+            alerts.append({
+                "alert_class": "LOW_MARGIN_WARNING",
+                "severity": "MEDIUM",
+                "model": model,
+                "category": category,
+                "confidence": confidence,
+                "input_margin_pct": in_margin,
+                "output_margin_pct": out_margin,
+                "recommended_action": (
+                    "Мониторить при следующем economics snapshot. "
+                    "Если Estimated — уточнить provider cost из официального прайса."
+                ),
+            })
+
+        # MISSING_COST_BASIS (для non-Incomplete)
+        if in_cost is None or out_cost is None:
+            alerts.append({
+                "alert_class": "MISSING_COST_BASIS",
+                "severity": "MEDIUM",
+                "model": model,
+                "category": category,
+                "confidence": confidence,
+                "input_margin_pct": in_margin,
+                "output_margin_pct": out_margin,
+                "recommended_action": (
+                    "Найти актуальный provider cost и дополнить economics matrix. "
+                    "До обновления — трактовать как Incomplete по риску."
+                ),
+            })
+
+        # ESTIMATED_ONLY_CATEGORY (один раз на категорию)
+        if category in estimated_only_categories and category not in already_alerted_categories:
+            already_alerted_categories.add(category)
+            alerts.append({
+                "alert_class": "ESTIMATED_ONLY_CATEGORY",
+                "severity": "LOW",
+                "model": None,
+                "category": category,
+                "confidence": "Estimated",
+                "input_margin_pct": None,
+                "output_margin_pct": None,
+                "recommended_action": (
+                    f"Вся категория '{category}' работает на proxy economics. "
+                    "При доступности реальных provider costs — обновить до Exact."
+                ),
+            })
+
+    return alerts
+
+
+def _build_alerts_summary(alerts: list[dict]) -> dict:
+    """Строит summary по alerts."""
+    by_severity: dict[str, int] = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    by_class: dict[str, int] = {}
+    for a in alerts:
+        sev = a.get("severity", "LOW")
+        cls = a.get("alert_class", "UNKNOWN")
+        by_severity[sev] = by_severity.get(sev, 0) + 1
+        by_class[cls] = by_class.get(cls, 0) + 1
+    return {
+        "total_alerts": len(alerts),
+        "critical": by_severity["CRITICAL"],
+        "high": by_severity["HIGH"],
+        "medium": by_severity["MEDIUM"],
+        "low": by_severity["LOW"],
+        "by_class": by_class,
+        "has_blocking": by_severity["CRITICAL"] > 0 or by_severity["HIGH"] > 0,
+    }
+
+
+@router.get("/operator/margin-alerts")
+async def get_operator_margin_alerts(
+    _current_user=Depends(get_current_user),
+    _operator_secret: None = Depends(_require_operator_secret),
+    severity: Optional[str] = Query(None, description="Фильтр по severity: CRITICAL/HIGH/MEDIUM/LOW"),
+    alert_class: Optional[str] = Query(None, description="Фильтр по alert_class"),
+):
+    """Оператор-only margin alerts по snapshot economics. Требует X-Operator-Secret."""
+    model_rows = _load_operator_economics_model_rows()
+    alerts = _evaluate_margin_alerts(model_rows)
+
+    # Фильтры
+    if severity:
+        alerts = [a for a in alerts if a["severity"] == severity.upper()]
+    if alert_class:
+        alerts = [a for a in alerts if a["alert_class"] == alert_class.upper()]
+
+    summary = _build_alerts_summary(alerts)
+
+    return {
+        "snapshot_date": OPERATOR_ECONOMICS_SNAPSHOT_DATE,
+        "policy_doc": "docs/current/MARGIN_ALERT_POLICY.md",
+        "summary": summary,
+        "alerts": alerts,
+    }
+
+
 @router.get("/operator/economics-view")
 async def get_operator_economics_view(
     _current_user=Depends(get_current_user),
