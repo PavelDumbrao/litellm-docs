@@ -1,0 +1,988 @@
+{
+  "generated_at": "2026-03-28T08:43:27.603390+00:00",
+  "data_sources": {
+    "economics_matrix": "billing-portal-src/app/api/billing.py",
+    "window_basis": "git revisions affecting OPERATOR_ECONOMICS_MODEL_MATRIX_TSV"
+  },
+  "observation_window": {
+    "current_commit": "798a5e460179c5112a237aff3cefd8e9668816b2",
+    "previous_commit": "d71e58788c2f97b2dc60fd48ee4999330ae3f166",
+    "current_snapshot_date": "2026-03-27",
+    "previous_snapshot_date": "2026-03-27"
+  },
+  "summary": {
+    "models_current": 44,
+    "models_previous": 44,
+    "low_margin_warning_current": 18,
+    "low_margin_warning_previous": 18,
+    "repeated_low_margin_models": 18,
+    "worsening_models": 0,
+    "improving_models": 1,
+    "stable_models": 43
+  },
+  "confidence_caveat": {
+    "Exact": "Точные economics значения, приоритетный сигнал для действий.",
+    "Estimated": "Прокси-оценка себестоимости, требует осторожной интерпретации тренда.",
+    "Incomplete": "Неполные economics данные, тренд ограниченно интерпретируем."
+  },
+  "category_trend": [
+    {
+      "category": "Audio/Speech",
+      "warning_or_worse_current": 2,
+      "warning_or_worse_previous": 2,
+      "avg_lowest_margin_current": 49.96,
+      "avg_lowest_margin_previous": 49.96,
+      "confidence_current": {
+        "Exact": 0,
+        "Estimated": 3,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 0,
+        "Estimated": 3,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Claude",
+      "warning_or_worse_current": 0,
+      "warning_or_worse_previous": 0,
+      "avg_lowest_margin_current": 96.54,
+      "avg_lowest_margin_previous": 96.54,
+      "confidence_current": {
+        "Exact": 7,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 7,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Embeddings",
+      "warning_or_worse_current": 0,
+      "warning_or_worse_previous": 0,
+      "avg_lowest_margin_current": 89.54,
+      "avg_lowest_margin_previous": 89.54,
+      "confidence_current": {
+        "Exact": 3,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 3,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Gemini",
+      "warning_or_worse_current": 6,
+      "warning_or_worse_previous": 6,
+      "avg_lowest_margin_current": 59.91,
+      "avg_lowest_margin_previous": 59.91,
+      "confidence_current": {
+        "Exact": 10,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 10,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "General Chat",
+      "warning_or_worse_current": 2,
+      "warning_or_worse_previous": 2,
+      "avg_lowest_margin_current": 69.95,
+      "avg_lowest_margin_previous": 72.44,
+      "confidence_current": {
+        "Exact": 8,
+        "Estimated": 1,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 8,
+        "Estimated": 0,
+        "Incomplete": 1
+      },
+      "trend_status": "worsening",
+      "trend_reason": "avg_margin_delta:-2.49"
+    },
+    {
+      "category": "I7DC Relay",
+      "warning_or_worse_current": 0,
+      "warning_or_worse_previous": 0,
+      "avg_lowest_margin_current": null,
+      "avg_lowest_margin_previous": null,
+      "confidence_current": {
+        "Exact": 0,
+        "Estimated": 0,
+        "Incomplete": 3
+      },
+      "confidence_previous": {
+        "Exact": 0,
+        "Estimated": 0,
+        "Incomplete": 3
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Other",
+      "warning_or_worse_current": 0,
+      "warning_or_worse_previous": 0,
+      "avg_lowest_margin_current": 70.28,
+      "avg_lowest_margin_previous": 70.28,
+      "confidence_current": {
+        "Exact": 1,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 1,
+        "Estimated": 0,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Realtime",
+      "warning_or_worse_current": 2,
+      "warning_or_worse_previous": 2,
+      "avg_lowest_margin_current": 49.85,
+      "avg_lowest_margin_previous": 49.85,
+      "confidence_current": {
+        "Exact": 0,
+        "Estimated": 2,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 0,
+        "Estimated": 2,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Search/Research",
+      "warning_or_worse_current": 4,
+      "warning_or_worse_previous": 4,
+      "avg_lowest_margin_current": 49.69,
+      "avg_lowest_margin_previous": 49.69,
+      "confidence_current": {
+        "Exact": 0,
+        "Estimated": 4,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 0,
+        "Estimated": 4,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "category": "Transcription",
+      "warning_or_worse_current": 2,
+      "warning_or_worse_previous": 2,
+      "avg_lowest_margin_current": 49.8,
+      "avg_lowest_margin_previous": 49.8,
+      "confidence_current": {
+        "Exact": 0,
+        "Estimated": 2,
+        "Incomplete": 0
+      },
+      "confidence_previous": {
+        "Exact": 0,
+        "Estimated": 2,
+        "Incomplete": 0
+      },
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    }
+  ],
+  "model_trend": [
+    {
+      "model": "claude-haiku-4-5",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 96.49,
+      "lowest_margin_previous": 96.49,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "claude-haiku-4-5-thinking",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 93.11,
+      "lowest_margin_previous": 93.11,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "claude-opus-4-5-thinking",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 98.17,
+      "lowest_margin_previous": 98.17,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "claude-opus-4-6",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 99.07,
+      "lowest_margin_previous": 99.07,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "claude-opus-4-6-thinking",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 97.26,
+      "lowest_margin_previous": 97.26,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "claude-sonnet-4-5-thinking",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 94.51,
+      "lowest_margin_previous": 94.51,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "claude-sonnet-4-6",
+      "category_current": "Claude",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 97.17,
+      "lowest_margin_previous": 97.17,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "deepseek-v3.2",
+      "category_current": "Other",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 70.28,
+      "lowest_margin_previous": 70.28,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-2.5-flash",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 77.66,
+      "lowest_margin_previous": 77.66,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-2.5-flash-lite",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 92.94,
+      "lowest_margin_previous": 92.94,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-2.5-flash-thinking",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 71.49,
+      "lowest_margin_previous": 71.49,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3-flash-preview",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 59.92,
+      "lowest_margin_previous": 59.92,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3-flash-preview-nothinking",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 48.57,
+      "lowest_margin_previous": 48.57,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3-flash-preview-thinking",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 48.57,
+      "lowest_margin_previous": 48.57,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview-high",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview-low",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview-medium",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4.1",
+      "category_current": "General Chat",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Incomplete",
+      "lowest_margin_current": 50.0,
+      "lowest_margin_previous": null,
+      "margin_band_current": "ok",
+      "margin_band_previous": "unknown",
+      "trend_status": "improving",
+      "trend_reason": "margin_band:unknown->ok"
+    },
+    {
+      "model": "gpt-4.1-mini",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.69,
+      "lowest_margin_previous": 89.69,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4.1-nano",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.41,
+      "lowest_margin_previous": 89.41,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.71,
+      "lowest_margin_previous": 89.71,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-audio-preview",
+      "category_current": "Audio/Speech",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.74,
+      "lowest_margin_previous": 89.74,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini-realtime-preview",
+      "category_current": "Realtime",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.81,
+      "lowest_margin_previous": 49.81,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini-search-preview",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 48.82,
+      "lowest_margin_previous": 48.82,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini-transcribe",
+      "category_current": "Transcription",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.61,
+      "lowest_margin_previous": 49.61,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-realtime-preview",
+      "category_current": "Realtime",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.89,
+      "lowest_margin_previous": 49.89,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-search-preview",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-transcribe",
+      "category_current": "Transcription",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5-search-api",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5.3-codex",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 50.0,
+      "lowest_margin_previous": 50.0,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5.4",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 74.06,
+      "lowest_margin_previous": 74.06,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5.4-mini",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.85,
+      "lowest_margin_previous": 49.85,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 47.06,
+      "lowest_margin_previous": 47.06,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-audio",
+      "category_current": "Audio/Speech",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.89,
+      "lowest_margin_previous": 49.89,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-audio-mini",
+      "category_current": "Audio/Speech",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 50.01,
+      "lowest_margin_previous": 50.01,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "i7dc-claude-haiku-4-5",
+      "category_current": "I7DC Relay",
+      "confidence_current": "Incomplete",
+      "confidence_previous": "Incomplete",
+      "lowest_margin_current": null,
+      "lowest_margin_previous": null,
+      "margin_band_current": "unknown",
+      "margin_band_previous": "unknown",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "i7dc-claude-opus-4-6",
+      "category_current": "I7DC Relay",
+      "confidence_current": "Incomplete",
+      "confidence_previous": "Incomplete",
+      "lowest_margin_current": null,
+      "lowest_margin_previous": null,
+      "margin_band_current": "unknown",
+      "margin_band_previous": "unknown",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "i7dc-claude-sonnet-4-6",
+      "category_current": "I7DC Relay",
+      "confidence_current": "Incomplete",
+      "confidence_previous": "Incomplete",
+      "lowest_margin_current": null,
+      "lowest_margin_previous": null,
+      "margin_band_current": "unknown",
+      "margin_band_previous": "unknown",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "o4-mini-deep-research",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "text-embedding-3-large",
+      "category_current": "Embeddings",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.79,
+      "lowest_margin_previous": 89.79,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "text-embedding-3-small",
+      "category_current": "Embeddings",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.41,
+      "lowest_margin_previous": 89.41,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "text-embedding-ada-002",
+      "category_current": "Embeddings",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 89.41,
+      "lowest_margin_previous": 89.41,
+      "margin_band_current": "ok",
+      "margin_band_previous": "ok",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    }
+  ],
+  "low_margin_model_trend": [
+    {
+      "model": "gemini-3-flash-preview-nothinking",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 48.57,
+      "lowest_margin_previous": 48.57,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3-flash-preview-thinking",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 48.57,
+      "lowest_margin_previous": 48.57,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview-high",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview-low",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gemini-3.1-pro-preview-medium",
+      "category_current": "Gemini",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-audio-preview",
+      "category_current": "Audio/Speech",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini-realtime-preview",
+      "category_current": "Realtime",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.81,
+      "lowest_margin_previous": 49.81,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini-search-preview",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 48.82,
+      "lowest_margin_previous": 48.82,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-mini-transcribe",
+      "category_current": "Transcription",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.61,
+      "lowest_margin_previous": 49.61,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-realtime-preview",
+      "category_current": "Realtime",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.89,
+      "lowest_margin_previous": 49.89,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-search-preview",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-4o-transcribe",
+      "category_current": "Transcription",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5-search-api",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5.4-mini",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 49.85,
+      "lowest_margin_previous": 49.85,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-5.4-nano",
+      "category_current": "General Chat",
+      "confidence_current": "Exact",
+      "confidence_previous": "Exact",
+      "lowest_margin_current": 47.06,
+      "lowest_margin_previous": 47.06,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "gpt-audio",
+      "category_current": "Audio/Speech",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.89,
+      "lowest_margin_previous": 49.89,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    },
+    {
+      "model": "o4-mini-deep-research",
+      "category_current": "Search/Research",
+      "confidence_current": "Estimated",
+      "confidence_previous": "Estimated",
+      "lowest_margin_current": 49.98,
+      "lowest_margin_previous": 49.98,
+      "margin_band_current": "warning",
+      "margin_band_previous": "warning",
+      "trend_status": "stable",
+      "trend_reason": "no_material_change"
+    }
+  ],
+  "repeated_low_margin_models": [
+    "gemini-3-flash-preview-nothinking",
+    "gemini-3-flash-preview-thinking",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-pro-preview-high",
+    "gemini-3.1-pro-preview-low",
+    "gemini-3.1-pro-preview-medium",
+    "gpt-4o-audio-preview",
+    "gpt-4o-mini-realtime-preview",
+    "gpt-4o-mini-search-preview",
+    "gpt-4o-mini-transcribe",
+    "gpt-4o-realtime-preview",
+    "gpt-4o-search-preview",
+    "gpt-4o-transcribe",
+    "gpt-5-search-api",
+    "gpt-5.4-mini",
+    "gpt-5.4-nano",
+    "gpt-audio",
+    "o4-mini-deep-research"
+  ]
+}
